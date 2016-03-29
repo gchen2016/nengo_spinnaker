@@ -15,7 +15,7 @@
 #include <stdbool.h>
 #include "spin1_api.h"
 #include "common-typedefs.h"
-#include "nengo_typedefs.h"
+#include "fixed_point.h"
 #include "nengo-common.h"
 #include <string.h>
 
