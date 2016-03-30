@@ -122,7 +122,7 @@ static value_t decode_spike_train(
 )
 {
   // Resultant decoded value
-  value_t output = FP_CONST_0_0;
+  value_t output = 0;
 
   // For each population
   for (uint32_t p = 0; p < n_populations; p++)

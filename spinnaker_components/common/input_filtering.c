@@ -68,7 +68,7 @@ void _lowpass_filter_step(uint32_t n_dims, value_t *input,
     next_output = __smlal(next_output, current_input, b);
 
     // Scale the result back down to store it
-    output[d] = convert_s32_30_s16_15(next_output);
+    output[d] = (value_t) (next_output >> FP_N_FRAC);
   }
 }
 
@@ -157,7 +157,7 @@ void _lti_filter_step(uint32_t n_dims, value_t *input,
     xy[state->n].b = input[dd];
 
     // Save the current output for later steps
-    output[dd] = convert_s32_30_s16_15(output_val);
+    output[dd] = (value_t) (output_val >> FP_N_FRAC);
     xy[state->n].a = output[dd];
   }
 

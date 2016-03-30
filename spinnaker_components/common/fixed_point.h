@@ -11,24 +11,15 @@ typedef int32_t value_t;
 #define FP_N_FRAC 15
 
 // Fixed point constants
-#define FP_CONST_0_0 0x0
-#define FP_CONST_1_0 1 << FP_N_FRAC
-#define FP_CONST_2_0 2 << FP_N_FRAC
-
-/*****************************************************************************/
-// Convert from an INT64 to appropriate INT32 fixed point representation
-
-static inline int32_t convert_s32_30_s16_15(int64_t value)
-{
-  return (int32_t) (value >> FP_N_FRAC);
-}
+#define FP_CONST_1_0 (1 << FP_N_FRAC)
+#define FP_CONST_2_0 (2 << FP_N_FRAC)
 
 /*****************************************************************************/
 // Perform a fixed point multiplication
 static inline value_t fp_mull(value_t a, value_t b)
 {
   int64_t result = __smull(a, b);
-  return (value_t) convert_s32_30_s16_15(result);
+  return (value_t) (result >> FP_N_FRAC);
 }
 
 /*****************************************************************************/
@@ -56,7 +47,7 @@ static inline value_t dot_product(uint32_t order, value_t *a, value_t *b)
   }
 
   // Convert from the S32.30 value back to S16.15 before returning
-  return (value_t) convert_s32_30_s16_15(acc);
+  return (value_t) (acc >> FP_N_FRAC);
 }
 
 /*****************************************************************************/

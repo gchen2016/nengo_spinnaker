@@ -224,7 +224,7 @@ static inline void input_filtering_step(
   // function call.
   for (uint32_t d = filters->output_size; d > 0; d--)
   {
-    filters->output[d - 1] = FP_CONST_0_0;
+    filters->output[d - 1] = 0;
   }
 
   // Apply all of the filter step functions and accumulate the outputs of the
