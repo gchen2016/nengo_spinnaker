@@ -8,7 +8,7 @@
 #define __FIXED_POINT_H__
 
 typedef int32_t value_t;
-#define FP_N_FRAC 15
+#define FP_N_FRAC 19
 
 // Fixed point constants
 #define FP_CONST_1_0 (1 << FP_N_FRAC)
