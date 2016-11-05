@@ -8,6 +8,7 @@ from nengo_spinnaker.builder.connection import (
     generic_source_getter,
     generic_sink_getter,
     build_generic_reception_params,
+    TransmissionParameters,
     EnsembleTransmissionParameters,
     PassthroughNodeTransmissionParameters,
     NodeTransmissionParameters
@@ -70,6 +71,26 @@ def test_build_standard_reception_params():
     # Build the transmission parameters
     params = build_generic_reception_params(None, a_b)
     assert params.filter is a_b.synapse
+
+
+def test_transmission_parameters_transform():
+    """Test that the transform extracted from a transmission parameters object
+    is the same as the transform that was supplied.
+
+    This is important as the transform may be stored in a compressed form
+    internally.
+    """
+    # Create a transform with some rows and columns which contain no values
+    transform = np.array([[j + (i*6) for j in range(6)] for i in range(8)])
+    transform[1, :] = 0
+    transform[:, 4] = 0
+
+    # Create a transmission parameters object for this transform
+    tp = TransmissionParameters(transform)
+
+    # Assert that the transform read from the parameters is the same as that
+    # provided.
+    assert np.array_equal(transform, tp.transform)
 
 
 class TestEnsembleTransmissionParameters(object):

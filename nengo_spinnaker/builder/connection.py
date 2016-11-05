@@ -37,8 +37,40 @@ def build_generic_reception_params(model, conn):
 class TransmissionParameters(object):
     """Parameters describing generic connections."""
     def __init__(self, transform):
-        self.transform = np.array(transform, order='C')
-        self.transform.flags['WRITEABLE'] = False
+        # Determine the pre- and post-sizes
+        self._size_out, self._size_in = transform.shape
+
+        # Determine the pre- and post-slices
+        self._slice_in = tuple(
+            i for i, include in enumerate(np.any(transform != 0, axis=0))
+            if include
+        )
+        self._slice_out = tuple(
+            i for i, include in enumerate(np.any(transform != 0, axis=1))
+            if include
+        )
+
+        # Store the residual portion of the transform
+        self._transform = np.zeros((len(self._slice_out),
+                                    len(self._slice_in)))
+
+        row_transform = transform[self._slice_out, :]
+        self._transform[:, :] = row_transform[:, self._slice_in]
+
+        # The residual portion of the transform must be read-only
+        self._transform.flags['WRITEABLE'] = False
+
+    @property
+    def transform(self):
+        # Construct the full transform
+        transform = np.zeros((self._size_out, self._size_in))
+
+        # Copy the values back into the transform
+        row_transform = np.zeros_like(transform[self._slice_out, :])
+        row_transform[:, self._slice_in] = self._transform
+        transform[self._slice_out, :] = row_transform
+
+        return transform
 
     def __ne__(self, other):
         return not (self == other)
@@ -49,14 +81,19 @@ class TransmissionParameters(object):
             return False
 
         # and the transforms are equivalent
-        if not np.array_equal(self.transform, other.transform):
+        if not (self._size_in == other._size_in and
+                self._size_out == other._size_out and
+                self._slice_in == other._slice_in and
+                self._slice_out == other._slice_out and
+                np.array_equal(self._transform, other._transform)):
             return False
 
         return True
 
     @property
     def _hashables(self):
-        return (type(self), fast_hash(self.transform).hexdigest())
+        return (type(self), self._slice_in, self._slice_out, self._size_in,
+                self._size_out, fast_hash(self.transform).hexdigest())
 
     def __hash__(self):
         return hash(self._hashables)
